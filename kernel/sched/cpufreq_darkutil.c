@@ -17,7 +17,7 @@
 #include <linux/kthread.h>
 #include <linux/slab.h>
 #include <trace/events/power.h>
-#include <linux/state_notifier.h>
+#include <linux/display_state.h>
 #include "sched.h"
 #include "tune.h"
 
@@ -109,7 +109,6 @@ struct dugov_cpu {
 
 static DEFINE_PER_CPU(struct dugov_cpu, dugov_cpu);
 static unsigned int stale_ns;
-__read_mostly static unsigned int _walt_ravg_window = (20000000 / TICK_NSEC) * TICK_NSEC;
 
 /************************ Governor internals ***********************/
 
@@ -220,8 +219,9 @@ static unsigned int get_next_freq(struct dugov_policy *du_policy,
 	unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
 	unsigned int capacity_factor, silver_max_freq, gold_max_freq;
+	const bool display_on = is_display_on();
 
-	if(state_suspended) {
+	if(!display_on) {
 		capacity_factor = du_policy->tunables->suspend_capacity_factor;
 		silver_max_freq = du_policy->tunables->silver_suspend_max_freq;
 		gold_max_freq = du_policy->tunables->gold_suspend_max_freq;
@@ -241,17 +241,17 @@ static unsigned int get_next_freq(struct dugov_policy *du_policy,
 	case 1:
 	case 2:
 	case 3:
-		if(state_suspended &&  silver_max_freq > 0 && silver_max_freq < freq)
+		if(!display_on &&  silver_max_freq > 0 && silver_max_freq < freq)
 			return silver_max_freq;
 		break;
 	case 4:
 	case 5:
-		if(state_suspended && gold_max_freq > 0 && gold_max_freq < freq)
+		if(!display_on && gold_max_freq > 0 && gold_max_freq < freq)
 			return gold_max_freq;
 		break;
 	case 6:
 	case 7:
-		if(state_suspended)
+		if(!display_on)
 			return policy->min;
 		break;
 	default:
@@ -292,10 +292,8 @@ static void dugov_get_util(unsigned long *util, unsigned long *max, u64 time)
 
 	*util = min(rq->cfs.avg.util_avg + rt, max_cap);
 
-#ifdef CONFIG_SCHED_WALT
 	if (!walt_disabled && sysctl_sched_use_walt_cpu_util)
 		*util = boosted_cpu_util(cpu);
-#endif
 
 	*max = max_cap;
 }
@@ -1030,7 +1028,7 @@ tunables->iowait_boost_enable = policy->iowait_boost_enable;
 	}
 
 	policy->governor_data = du_policy;
-	stale_ns = _walt_ravg_window + (_walt_ravg_window >> 3);
+	stale_ns = walt_ravg_window + (walt_ravg_window >> 3);
 	du_policy->tunables = tunables;
 
 	ret = kobject_init_and_add(&tunables->attr_set.kobj, &dugov_tunables_ktype,
