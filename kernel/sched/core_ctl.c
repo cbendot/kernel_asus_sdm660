@@ -22,6 +22,7 @@
 #include <linux/sched/rt.h>
 
 #include <trace/events/sched.h>
+
 #include "sched.h"
 
 #define MAX_CPUS_PER_CLUSTER 4
