@@ -766,7 +766,7 @@ struct st_data {
 static void write_default_values(struct cgroup_subsys_state *css)
 {
 	static struct st_data st_targets[] = {
-		{ "top-app",	1, 1, 10 },
+		{ "top-app",	2, 1, 10 },
 		{ "foreground",	0, 1,  0 }
 	};
 	int i;
