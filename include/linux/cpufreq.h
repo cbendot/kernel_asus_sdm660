@@ -545,6 +545,12 @@ extern struct cpufreq_governor cpufreq_gov_zzmoove;
 #elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_DARKNESS)
 extern struct cpufreq_governor cpufreq_gov_darkness;
 #define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_darkness)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_BLU_ACTIVE)
+extern struct cpufreq_governor cpufreq_gov_blu_active;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_blu_active)
+#elif defined(CONFIG_CPU_FREQ_DEFAULT_GOV_NEBULA)
+extern struct cpufreq_governor cpufreq_gov_nebula;
+#define CPUFREQ_DEFAULT_GOVERNOR	(&cpufreq_gov_nebula)
 #endif
 
 static inline void cpufreq_policy_apply_limits(struct cpufreq_policy *policy)
