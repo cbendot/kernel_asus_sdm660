@@ -337,8 +337,13 @@ scripts/Kbuild.include: ;
 include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
+AS		= $(CROSS_COMPILE)as
+LD		= $(CROSS_COMPILE)ld
+<<<<<<< HEAD
+=======
 LDGOLD		= $(CROSS_COMPILE)ld.gold
 LDLLD		= ld.lld
+>>>>>>> 7fde5a6c6628 ([Squash] Treewide: Update for ld.lld usage)
 CC		= $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
@@ -619,6 +624,14 @@ CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
 GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
 endif
 ifneq ($(GCC_TOOLCHAIN),)
+<<<<<<< HEAD
+CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
+endif
+KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
+KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
+=======
 CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
 endif
 CLANG_FLAGS	+= -no-integrated-as
@@ -658,7 +671,7 @@ LLVM_NM		:= llvm-nm
 export LLVM_AR LLVM_NM
 # Set O3 optimization level for LTO
 LDFLAGS		+= --plugin-opt=O3
-
+>>>>>>> 7fde5a6c6628 ([Squash] Treewide: Update for ld.lld usage)
 endif
 
 # The arch Makefile can set ARCH_{CPP,A,C}FLAGS to override the default
@@ -792,12 +805,14 @@ endif
 # These warnings generated too much noise in a regular build.
 # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
-
+<<<<<<< HEAD
+=======
 endif
 
 ifeq ($(ld-name),lld)
 LDFLAGS += -O3
 endif
+>>>>>>> 7fde5a6c6628 ([Squash] Treewide: Update for ld.lld usage)
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
 ifdef CONFIG_FRAME_POINTER
@@ -1129,6 +1144,8 @@ prepare0: archprepare gcc-plugins
 # All the preparing..
 prepare: prepare0
 
+<<<<<<< HEAD
+=======
 # Make sure we're using a supported toolchain with LTO_CLANG
 ifdef CONFIG_LTO_CLANG
   ifneq ($(call clang-ifversion, -ge, 0500, y), y)
@@ -1148,6 +1165,7 @@ ifdef lto-flags
   endif
 endif
 
+>>>>>>> 7fde5a6c6628 ([Squash] Treewide: Update for ld.lld usage)
 # Generate some files
 # ---------------------------------------------------------------------------
 

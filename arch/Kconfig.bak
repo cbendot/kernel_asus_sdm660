@@ -499,6 +499,8 @@ config CC_STACKPROTECTOR_STRONG
 
 endchoice
 
+<<<<<<< HEAD
+=======
 config THIN_ARCHIVES
 	def_bool y
 	help
@@ -604,6 +606,7 @@ config LTO_CLANG
 
 endchoice
 
+>>>>>>> 7fde5a6c6628 ([Squash] Treewide: Update for ld.lld usage)
 config HAVE_ARCH_WITHIN_STACK_FRAMES
 	bool
 	help
