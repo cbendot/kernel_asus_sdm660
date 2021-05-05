@@ -2143,7 +2143,7 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 	int retval = 0;
 	unsigned char data[MAX_INTR_REGISTERS];
 
-	const struct synaptics_dsx_board_data *bdata =
+	struct synaptics_dsx_board_data *bdata =
 			rmi4_data->hw_if->board_data;
 
 	mutex_lock(&(rmi4_data->rmi4_irq_enable_mutex));
@@ -2177,6 +2177,7 @@ static int synaptics_rmi4_irq_enable(struct synaptics_rmi4_data *rmi4_data,
 			goto exit;
 		}
 		//(bdata->irq_flags) |= IRQF_ONESHOT;
+		bdata->irq_flags |= IRQF_PERF_CRITICAL;
 		retval = request_threaded_irq(rmi4_data->irq, NULL,
 				synaptics_rmi4_irq, bdata->irq_flags,
 				PLATFORM_DRIVER_NAME, rmi4_data);
