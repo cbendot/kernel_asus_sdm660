@@ -3414,7 +3414,7 @@ void asus_batt_RTC_work(struct work_struct *dat)
 #define ICL_1500mA	0x3C
 #define ICL_1900mA	0x4C
 #define ICL_2000mA	0x50
-#define ICL_2500mA	0x64
+#define ICL_2500mA  0x64
 #define ICL_2850mA	0x72
 #define ICL_3000mA	0x78
 #define ASUS_MONITOR_CYCLE	60000
@@ -3710,7 +3710,7 @@ void jeita_rule(void)
 	case JEITA_STATE_LESS_THAN_0:
 		charging_enable = EN_BAT_CHG_EN_COMMAND_FALSE;
 		FV_CFG_reg_value = SMBCHG_FLOAT_VOLTAGE_VALUE_4P357;
-		FCC_reg_value = SMBCHG_FAST_CHG_CURRENT_VALUE_1400MA;
+		FCC_reg_value = SMBCHG_FAST_CHG_CURRENT_VALUE_1500MA;
 		break;
 	case JEITA_STATE_RANGE_0_to_100:
 		charging_enable = EN_BAT_CHG_EN_COMMAND_TRUE;
@@ -3751,7 +3751,7 @@ void jeita_rule(void)
 	case JEITA_STATE_LARGER_THAN_600:
 		charging_enable = EN_BAT_CHG_EN_COMMAND_FALSE;
 		FV_CFG_reg_value = SMBCHG_FLOAT_VOLTAGE_VALUE_4P004;
-		FCC_reg_value = SMBCHG_FAST_CHG_CURRENT_VALUE_1500MA;
+		FCC_reg_value = SMBCHG_FAST_CHG_CURRENT_VALUE_2000MA;
 		break;
 	}
 
