@@ -6,7 +6,7 @@ export KBUILD_BUILD_USER=ben863
 
 export KBUILD_BUILD_HOST=LiteSpeed
 
-export TOOLCHAIN=gcc
+export TOOLCHAIN=clang
 
 export DEVICES=X00TD
 
@@ -14,7 +14,7 @@ source helper
 
 gen_toolchain
 
-send_msg "🔨Building Kernel... | Suit-Suit... He-He%0AKernel Version: ${KERNELNAME}%0A<b>Buildbot: ${KBUILD_BUILD_USER}%0AServer: ${KBUILD_BUILD_HOST}"
+send_msg "🔨Building Kernel.... | Suit-Suit... He-He%0A${KERNELNAME}%0A${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}%0A1:00 ●━━━━━━─────── 2:00 ⇆ㅤㅤㅤ ㅤ◁ㅤㅤ❚❚ㅤㅤ▷ㅤㅤㅤㅤ↻"
 
 START=$(date +"%s")
 
