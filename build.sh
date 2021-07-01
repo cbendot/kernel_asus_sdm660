@@ -14,7 +14,7 @@ source helper
 
 gen_toolchain
 
-send_msg "<b>🔨Building Kernel. . .</b>%0A<b>Kernel Version: ${KERNELNAME}</b>%0A<b>Buildbot: ${KBUILD_BUILD_USER}</b>%0A<b>Server: ${KBUILD_BUILD_HOST}</b>%0A<b>Suit-Suit... He-He"
+send_msg "🔨Building Kernel... | Suit-Suit... He-He%0AKernel Version: ${KERNELNAME}%0A<b>Buildbot: ${KBUILD_BUILD_USER}%0AServer: ${KBUILD_BUILD_HOST}"
 
 START=$(date +"%s")
 
