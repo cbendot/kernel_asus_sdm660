@@ -1,0 +1,112 @@
+#!/bin/bash
+
+DATE=$(date +"%Y%m%d-%H%M")
+
+make_build(){
+	print "Make kernel dtb..." green
+	if [ $TOOLCHAIN == clang ]; then
+		export KBUILD_COMPILER_STRING=$(clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+		PATH="$(pwd)/clang/bin:${PATH}"
+		make O=out ARCH=arm64 $1
+		make -j$(nproc --all) O=out \
+				ARCH=arm64 \
+				CC=clang \
+				AR=llvm-ar \
+				NM=llvm-nm \
+				OBJCOPY=llvm-objcopy \
+				OBJDUMP=llvm-objdump \
+				STRIP=llvm-strip \
+				CROSS_COMPILE=aarch64-linux-gnu- \
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+	else
+		export KBUILD_COMPILER_STRING=$(clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')
+		PATH="$(pwd)/clang/bin:${PATH}"
+		make O=out ARCH=arm64 $1
+		make -j$(nproc --all) O=out \
+				ARCH=arm64 \
+				CC=clang \
+				AR=llvm-ar \
+				NM=llvm-nm \
+				OBJCOPY=llvm-objcopy \
+				OBJDUMP=llvm-objdump \
+				STRIP=llvm-strip \
+				CROSS_COMPILE=aarch64-linux-gnu- \
+				CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+	fi
+}
+
+make_clean(){
+	rm -rf out
+}
+
+send_msg(){
+	print "${1}" green
+	curl -s -X POST https://api.telegram.org/bot"${bot_token}"/sendMessage \
+		-d parse_mode="Markdown" \
+		-d chat_id="${chat_id}" \
+		-d text="${1}"
+}
+
+send_file(){
+	print "Sending file..." green
+	curl -F chat_id="${chat_id}" \
+		-F caption="Suit-Suit... He-He... Build Successful! | Gue Ganteng $DATE " \
+		-F document=@"${1}" \
+		 https://api.telegram.org/bot"${bot_token}"/sendDocument
+}
+
+mkzip(){
+	print "Generate zip file..." green
+
+	if [ -f $(pwd)/out/arch/arm64/boot/Image.gz-dtb ]; then
+		cp $(pwd)/out/arch/arm64/boot/Image.gz-dtb  anykernel
+		cd anykernel
+		zip -r9 ../$1 * -x .git README.md *placeholder
+		cd ..
+		send_file $1
+	else
+		send_msg "❌ Build Gagal!, Cek lagi scriptnya sambil ngopi!"
+		print "Build error !" red
+		exit 1
+	fi
+}
+
+print(){
+	echo ""
+	case ${2} in
+		"red")
+		echo -e "\033[31m $1 \033[0m";;
+		"green")
+		echo -e "\033[32m $1 \033[0m";;
+		*)
+		echo $1
+		;;
+	esac
+}
+
+gen_toolchain(){
+	print "Cloning toolchain files..." green
+	if [ $TOOLCHAIN == "clang" ]
+	then
+		git clone --depth=1 https://github.com/cbendot/proton-clang clang
+	else
+		git clone --depth=1 https://github.com/cbendot/xRageChain-tc_build clang
+	fi
+		git clone --depth=1 https://github.com/cbendot/AnyKernel3 -b X00TD anykernel
+}
+
+build(){
+
+	export type="${1} ${2} ${3}"
+
+	make_clean
+	
+		if [ $2 == "-perf" ]
+	then
+		make_build "${1}_defconfig"
+	else
+		make_build "${1}_defconfig"
+	fi
+		
+	mkzip "$KERNELNAME-$DATE.zip"
+}
