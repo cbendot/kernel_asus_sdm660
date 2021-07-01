@@ -6,7 +6,7 @@ export KBUILD_BUILD_USER=ben863
 
 export KBUILD_BUILD_HOST=LiteSpeed
 
-export TOOLCHAIN=gcc
+export TOOLCHAIN=clang
 
 export DEVICES=X00TD
 
