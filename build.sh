@@ -14,7 +14,7 @@ source helper
 
 gen_toolchain
 
-send_msg "<🔨Building Kernel.... Suit-Suit... He-He%0A${KERNELNAME}%0AKernel Version: 4.4.274%0ABuild Date: $DATE%0AServer: Drone CI%0ABot: ${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}%0A1:00 ●━━━━━━─────── 2:00 ⇆ㅤㅤㅤ ㅤ◁ㅤㅤ❚❚ㅤㅤ▷ㅤㅤㅤㅤ↻"
+send_msg "🔨Building Kernel.... Suit-Suit... He-He%0A${KERNELNAME}%0AKernel Version: 4.4.274%0ABuild Date: $DATE%0AServer: Drone CI%0ABot: ${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}%0A1:00 ●━━━━━━─────── 2:00 ⇆ㅤㅤㅤ ㅤ◁ㅤㅤ❚❚ㅤㅤ▷ㅤㅤㅤㅤ↻"
 
 START=$(date +"%s")
 
