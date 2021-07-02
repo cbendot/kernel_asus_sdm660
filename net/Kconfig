@@ -83,7 +83,7 @@ config INET
 
 	  If you say Y here and also to "/proc file system support" and
 	  "Sysctl support" below, you can change various aspects of the
-source "net/wireguard/Kconfig"
+
 	  behavior of the TCP/IP code by writing to the (virtual) files in
 	  /proc/sys/net/ipv4/*; the options are explained in the file
 	  <file:Documentation/networking/ip-sysctl.txt>.
@@ -91,7 +91,6 @@ source "net/wireguard/Kconfig"
 	  Short answer: say Y.
 
 if INET
-
 source "net/ipv4/Kconfig"
 source "net/ipv6/Kconfig"
 source "net/netlabel/Kconfig"
