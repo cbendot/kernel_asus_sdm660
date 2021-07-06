@@ -337,8 +337,8 @@ scripts/Kbuild.include: ;
 include scripts/Kbuild.include
 
 # Make variables (CC, etc...)
-LDGOLD		= $(CROSS_COMPILE)ld.gold
-LDLLD		= ld.lld
+AS		= $(CROSS_COMPILE)as
+LD		= $(CROSS_COMPILE)ld
 CC		= $(CROSS_COMPILE)gcc
 CPP		= $(CC) -E
 AR		= $(CROSS_COMPILE)ar
@@ -619,46 +619,12 @@ CLANG_PREFIX	:= --prefix=$(GCC_TOOLCHAIN_DIR)$(notdir $(CROSS_COMPILE))
 GCC_TOOLCHAIN	:= $(realpath $(GCC_TOOLCHAIN_DIR)/..)
 endif
 ifneq ($(GCC_TOOLCHAIN),)
-CLANG_FLAGS	+= --gcc-toolchain=$(GCC_TOOLCHAIN)
+CLANG_GCC_TC	:= --gcc-toolchain=$(GCC_TOOLCHAIN)
 endif
-CLANG_FLAGS	+= -no-integrated-as
-CLANG_FLAGS	+= -Werror=unknown-warning-option
-ifeq ($(ld-name),lld)
-CLANG_FLAGS	+= -fuse-ld=$(shell which $(LD))
-endif
-KBUILD_CPPFLAGS	+= -Qunused-arguments
-CLANG_FLAGS    += $(call cc-option, -Wno-misleading-indentation)
-CLANG_FLAGS    += $(call cc-option, -Wno-bool-operation)
-KBUILD_CFLAGS	+= $(CLANG_FLAGS)
-KBUILD_AFLAGS	+= $(CLANG_FLAGS)
-ifeq ($(ld-name),lld)
-KBUILD_CFLAGS += -fuse-ld=lld
-endif
-KBUILD_CPPFLAGS += -Qunused-arguments
-endif
-
-# Make toolchain changes before including arch/$(SRCARCH)/Makefile to ensure
-# ar/cc/ld-* macros return correct values.
-ifdef CONFIG_LD_GOLD
-LDFINAL_vmlinux := $(LD)
-LD		:= $(LDGOLD)
-endif
-ifdef CONFIG_LD_LLD
-LD		:= $(LDLLD)
-endif
-ifdef CONFIG_LTO_CLANG
-# use GNU gold with LLVMgold or LLD for LTO linking, and LD for vmlinux_link
-ifeq ($(ld-name),gold)
-LDFLAGS		+= -plugin LLVMgold.so
-endif
-# use llvm-ar for building symbol tables from IR files, and llvm-dis instead
-# of objdump for processing symbol versions and exports
-LLVM_AR		:= llvm-ar
-LLVM_NM		:= llvm-nm
-export LLVM_AR LLVM_NM
-# Set O3 optimization level for LTO
-LDFLAGS		+= --plugin-opt=O3
-
+KBUILD_CFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+KBUILD_AFLAGS += $(CLANG_TARGET) $(CLANG_GCC_TC) $(CLANG_PREFIX)
+KBUILD_CFLAGS += $(call cc-option, -no-integrated-as)
+KBUILD_AFLAGS += $(call cc-option, -no-integrated-as)
 endif
 
 # The arch Makefile can set ARCH_{CPP,A,C}FLAGS to override the default
@@ -792,12 +758,6 @@ endif
 # These warnings generated too much noise in a regular build.
 # Use make W=1 to enable them (see scripts/Makefile.extrawarn)
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-but-set-variable)
-
-endif
-
-ifeq ($(ld-name),lld)
-LDFLAGS += -O3
-endif
 
 KBUILD_CFLAGS += $(call cc-disable-warning, unused-const-variable)
 ifdef CONFIG_FRAME_POINTER
@@ -1128,25 +1088,6 @@ prepare0: archprepare gcc-plugins
 
 # All the preparing..
 prepare: prepare0
-
-# Make sure we're using a supported toolchain with LTO_CLANG
-ifdef CONFIG_LTO_CLANG
-  ifneq ($(call clang-ifversion, -ge, 0500, y), y)
-	@echo Cannot use CONFIG_LTO_CLANG: requires clang 5.0 or later >&2 && exit 1
-  endif
-  ifneq ($(ld-name),lld)
-    ifneq ($(call gold-ifversion, -ge, 112000000, y), y)
-    	@echo Cannot use CONFIG_LTO_CLANG: requires LLD or GNU gold 1.12 or later >&2 && exit 1
-    endif
-  endif
-endif
-# Make sure compiler supports LTO flags
-ifdef lto-flags
-  ifeq ($(call cc-option, $(lto-flags)),)
-	@echo Cannot use CONFIG_LTO: $(lto-flags) not supported by compiler \
-		>&2 && exit 1
-  endif
-endif
 
 # Generate some files
 # ---------------------------------------------------------------------------
