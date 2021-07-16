@@ -18,43 +18,42 @@
 #include <linux/slab.h>
 #include <linux/init.h>
 
-/* Max times reads can starve a write */
-#define	DEFAULT_MAX_WRITES_STARVED	(2)
+/* For this many read requests, perform one write request */
+#define	DEFAULT_READ_RATIO	(4)
 
 struct anxiety_data {
 	struct list_head queue[2];
-	uint16_t writes_starved;
+	uint16_t contig_reads;
 
 	/* Tunables */
-	uint8_t max_writes_starved;
+	uint8_t read_ratio;
 };
 
-static void anxiety_merged_requests(struct request_queue *q, struct request *rq, struct request *next)
-
+static void anxiety_merged_requests(struct request_queue *q, struct request *rq,
+		struct request *next)
 {
 	rq_fifo_clear(next);
 }
 
 static inline struct request *anxiety_choose_request(struct anxiety_data *adata)
 {
-
-	/* Prioritize reads unless writes are exceedingly starved */
-	bool starved = adata->writes_starved > adata->max_writes_starved;
+	/* Perform read requests if ratio is unmet */
+	bool do_read = adata->contig_reads < adata->read_ratio;
 
 	/* Handle a read request */
-	if (!starved && !list_empty(&adata->queue[READ])) {
-		adata->writes_starved++;
+	if (do_read && !list_empty(&adata->queue[READ])) {
+		adata->contig_reads++;
 		return rq_entry_fifo(adata->queue[READ].next);
 	}
 
 	/* Handle a write request */
 	if (!list_empty(&adata->queue[WRITE])) {
-		adata->writes_starved = 0;
+		adata->contig_reads = 0;
 		return rq_entry_fifo(adata->queue[WRITE].next);
 	}
 
-	/* If there are no requests, then there is nothing to starve */
-	adata->writes_starved = 0;
+	/* Completed all pending requests; reset contiguous read counter */
+	adata->contig_reads = 0;
 	return NULL;
 }
 
@@ -73,33 +72,14 @@ static int anxiety_dispatch(struct request_queue *q, int force)
 
 static void anxiety_add_request(struct request_queue *q, struct request *rq)
 {
-	const uint8_t dir = rq_data_dir(rq);
+	const uint8_t dir = rq_is_sync(rq);
+	struct anxiety_data *adata = q->elevator->elevator_data;
 
-	list_add_tail(&rq->queuelist, &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir]);
+	list_add_tail(&rq->queuelist, &adata->queue[dir]);
 }
 
-static struct request *anxiety_former_request(struct request_queue *q, struct request *rq)
-{
-	const uint8_t dir = rq_data_dir(rq);
-
-	if (rq->queuelist.prev == &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir])
-		return NULL;
-
-	return list_prev_entry(rq, queuelist);
-}
-
-static struct request *anxiety_latter_request(struct request_queue *q, struct request *rq)
-{
-	const uint8_t dir = rq_data_dir(rq);
-
-	if (rq->queuelist.next == &((struct anxiety_data *) q->elevator->elevator_data)->queue[dir])
-		return NULL;
-
-	return list_next_entry(rq, queuelist);
-}
-
-static int anxiety_init_queue(struct request_queue *q, struct elevator_type *elv)
-
+static int anxiety_init_queue(struct request_queue *q,
+		struct elevator_type *elv)
 {
 	struct anxiety_data *adata;
 	struct elevator_queue *eq = elevator_alloc(q, elv);
@@ -120,8 +100,8 @@ static int anxiety_init_queue(struct request_queue *q, struct elevator_type *elv
 	/* Initialize */
 	INIT_LIST_HEAD(&adata->queue[READ]);
 	INIT_LIST_HEAD(&adata->queue[WRITE]);
-	adata->writes_starved = 0;
-	adata->max_writes_starved = DEFAULT_MAX_WRITES_STARVED;
+	adata->contig_reads = 0;
+	adata->read_ratio = DEFAULT_READ_RATIO;
 
 	/* Set elevator to Anxiety */
 	spin_lock_irq(q->queue_lock);
@@ -132,22 +112,20 @@ static int anxiety_init_queue(struct request_queue *q, struct elevator_type *elv
 }
 
 /* Sysfs access */
-
-static ssize_t anxiety_max_writes_starved_show(struct elevator_queue *e, char *page)
+static ssize_t anxiety_read_ratio_show(struct elevator_queue *e, char *page)
 {
 	struct anxiety_data *adata = e->elevator_data;
 
-	return snprintf(page, PAGE_SIZE, "%u\n", adata->max_writes_starved);
+	return snprintf(page, PAGE_SIZE, "%u\n", adata->read_ratio);
 }
 
-static ssize_t anxiety_max_writes_starved_store(struct elevator_queue *e, const char *page, size_t count)
-
+static ssize_t anxiety_read_ratio_store(struct elevator_queue *e,
+		const char *page, size_t count)
 {
 	struct anxiety_data *adata = e->elevator_data;
 	int ret;
 
-	ret = kstrtou8(page, 0, &adata->max_writes_starved);
-
+	ret = kstrtou8(page, 0, &adata->read_ratio);
 	if (ret < 0)
 		return ret;
 
@@ -155,7 +133,8 @@ static ssize_t anxiety_max_writes_starved_store(struct elevator_queue *e, const 
 }
 
 static struct elv_fs_entry anxiety_attrs[] = {
-	__ATTR(max_writes_starved, 0644, anxiety_max_writes_starved_show, anxiety_max_writes_starved_store),
+	__ATTR(read_ratio, 0644, anxiety_read_ratio_show,
+			anxiety_read_ratio_store),
 	__ATTR_NULL
 };
 
@@ -164,8 +143,8 @@ static struct elevator_type elevator_anxiety = {
 		.elevator_merge_req_fn	= anxiety_merged_requests,
 		.elevator_dispatch_fn	= anxiety_dispatch,
 		.elevator_add_req_fn	= anxiety_add_request,
-		.elevator_former_req_fn	= anxiety_former_request,
-		.elevator_latter_req_fn	= anxiety_latter_request,
+		.elevator_former_req_fn	= elv_rb_former_request,
+		.elevator_latter_req_fn	= elv_rb_latter_request,
 		.elevator_init_fn	= anxiety_init_queue,
 	},
 	.elevator_name = "anxiety",
