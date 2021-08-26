@@ -17,7 +17,7 @@
 #include <linux/kthread.h>
 #include <linux/slab.h>
 #include <trace/events/power.h>
-#include <linux/state_notifier.h>
+#include <linux/display_state.h>
 #include "sched.h"
 #include "tune.h"
 
@@ -204,8 +204,9 @@ static unsigned int get_next_freq(struct eugov_policy *eg_policy,
 	unsigned int freq = arch_scale_freq_invariant() ?
 				policy->cpuinfo.max_freq : policy->cur;
 	unsigned int capacity_factor, silver_max_freq, gold_max_freq;
+	const bool display_on = is_display_on();
 
-	if(state_suspended) {
+	if(!display_on) {
 		capacity_factor = eg_policy->tunables->suspend_capacity_factor;
 		silver_max_freq = eg_policy->tunables->silver_suspend_max_freq;
 		gold_max_freq = eg_policy->tunables->gold_suspend_max_freq;
@@ -218,18 +219,18 @@ static unsigned int get_next_freq(struct eugov_policy *eg_policy,
 	case 2:
 	case 3:
 		freq = (freq + (freq >> 2)) * util / max;
-		if(state_suspended &&  silver_max_freq > 0 && silver_max_freq < freq)
+		if(!display_on &&  silver_max_freq > 0 && silver_max_freq < freq)
 			return silver_max_freq;
 		break;
 	case 4:
 	case 5:
 		freq = (freq + (freq >> 2)) * util / max;
-		if(state_suspended && gold_max_freq > 0 && gold_max_freq < freq)
+		if(!display_on && gold_max_freq > 0 && gold_max_freq < freq)
 			return gold_max_freq;
 		break;
 	case 6:
 	case 7:
-		if(state_suspended)
+		if(!display_on)
 			return policy->min;
 		else
 			freq = freq * util / max;
