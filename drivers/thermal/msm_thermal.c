@@ -4986,6 +4986,49 @@ static struct kernel_param_ops module_ops = {
 module_param_cb(enabled, &module_ops, &enabled, 0644);
 MODULE_PARM_DESC(enabled, "enforce thermal limit on cpu");
 
+/* Poll ms */
+module_param_named(poll_ms, msm_thermal_info.poll_ms, uint, 0664);
+
+/* Temp Threshold */
+module_param_named(temp_threshold, msm_thermal_info.limit_temp_degC,
+			int, 0664);
+module_param_named(core_limit_temp_degC, msm_thermal_info.core_limit_temp_degC,
+		   uint, 0644);
+module_param_named(hotplug_temp_degC, msm_thermal_info.hotplug_temp_degC,
+		   uint, 0644);
+module_param_named(freq_mitig_temp_degc,
+		   msm_thermal_info.freq_mitig_temp_degc, uint, 0644);
+module_param_named(limit_temp_degC, msm_thermal_info.limit_temp_degC,
+			int, 0664);
+
+/* Control Mask */
+module_param_named(freq_control_mask,
+		   msm_thermal_info.bootup_freq_control_mask, uint, 0644);
+module_param_named(core_control_mask, msm_thermal_info.core_control_mask,
+			uint, 0664);
+module_param_named(freq_mitig_control_mask,
+		   msm_thermal_info.freq_mitig_control_mask, uint, 0644);
+
+/* extended module parameters */
+module_param_named(temp_hysteresis_degC, msm_thermal_info.temp_hysteresis_degC,
+                        int, 0664);
+module_param_named(freq_step, msm_thermal_info.bootup_freq_step,
+			uint, 0644);
+module_param_named(core_temp_hysteresis_degC, msm_thermal_info.core_temp_hysteresis_degC,
+                        int, 0664);
+module_param_named(hotplug_temp, msm_thermal_info.hotplug_temp_degC,
+			uint, 0644);
+module_param_named(thermal_limit_high, limit_idx_high,
+			int, 0664);
+module_param_named(thermal_limit_low, limit_idx_low,
+			int, 0664);
+module_param_named(hotplug_temp_hysteresis, msm_thermal_info.hotplug_temp_hysteresis_degC,
+			uint, 0644);
+module_param_named(psm_temp, msm_thermal_info.psm_temp_degC,
+			uint, 0644);
+module_param_named(psm_temp_hysteresis, msm_thermal_info.psm_temp_hyst_degC,
+			uint, 0644);
+
 static ssize_t show_cc_enabled(struct kobject *kobj,
 		struct kobj_attribute *attr, char *buf)
 {
@@ -7592,3 +7635,8 @@ int __init msm_thermal_late_init(void)
 	return 0;
 }
 late_initcall(msm_thermal_late_init);
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Praveen Chidambaram <pchidamb@codeaurora.org>");
+MODULE_AUTHOR("Paul Reioux <reioux@gmail.com>");
+MODULE_DESCRIPTION("Based on intelligent thermal driver version 2 for Qualcomm based SOCs");
+MODULE_DESCRIPTION("originally from Qualcomm's open source repo");
