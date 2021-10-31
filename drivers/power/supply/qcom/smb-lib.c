@@ -69,7 +69,7 @@ static struct alarm bat_alarm;
 extern struct gpio_control *global_gpio;
 static int ASUS_ADAPTER_ID;
 
-#ifdef CONFIG_MACH_ASUS_X01BD
+#ifdef CONFIG_MACH_ASUS_X00TD
 int custom_usb_presence;
 #endif
 void smblib_asus_monitor_start(struct smb_charger *chg, int time);
@@ -2387,7 +2387,7 @@ int smblib_get_prop_usb_present(struct smb_charger *chg,
 	}
 
 	val->intval = (bool)(stat & USBIN_PLUGIN_RT_STS_BIT);
-#ifdef CONFIG_MACH_ASUS_X01BD
+#ifdef CONFIG_MACH_ASUS_X00TD
 	custom_usb_presence = val->intval;
 #endif
 	return 0;
