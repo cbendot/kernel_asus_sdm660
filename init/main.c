@@ -129,6 +129,20 @@ static char *initcall_command_line;
 static char *execute_command;
 static char *ramdisk_execute_command;
 
+static unsigned int android_version = 9;
+
+static int __init set_android_version(char *val)
+{
+	get_option(&val, &android_version);
+	return 0;
+}
+__setup("androidboot.version=", set_android_version);
+
+unsigned int get_android_version(void)
+{
+	return android_version;
+}
+
 static unsigned int led_vibration = 1;
 
 static int __init set_led_vibration(char *val)
