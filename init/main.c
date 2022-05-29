@@ -129,6 +129,20 @@ static char *initcall_command_line;
 static char *execute_command;
 static char *ramdisk_execute_command;
 
+static unsigned int led_vibration = 1;
+
+static int __init set_led_vibration(char *val)
+{
+	get_option(&val, &led_vibration);
+	return 0;
+}
+__setup("led.vibration=", set_led_vibration);
+
+unsigned int get_led_vibration(void)
+{
+	return led_vibration;
+}
+
 /*
  * Used to generate warnings if static_key manipulation functions are used
  * before jump_label_init is called.
