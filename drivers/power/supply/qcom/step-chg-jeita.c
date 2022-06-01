@@ -18,10 +18,6 @@
 #include <linux/pmic-voter.h>
 #include "step-chg-jeita.h"
 
-#ifdef CONFIG_FORCE_FAST_CHARGE
-#include <linux/fastchg.h>
-#endif
-
 #define MAX_STEP_CHG_ENTRIES	8
 #define STEP_CHG_VOTER		"STEP_CHG_VOTER"
 #define JEITA_VOTER		"JEITA_VOTER"
@@ -58,16 +54,6 @@ struct jeita_fv_cfg {
 	int			hysteresis;
 	struct range_data	fv_cfg[MAX_STEP_CHG_ENTRIES];
 };
-
-#ifdef CONFIG_FORCE_FAST_CHARGE
-struct jeita_fcc_cfg2 {
-	struct range_data	fcc_cfg[MAX_STEP_CHG_ENTRIES];
-};
-
-struct jeita_fv_cfg2 {
-	struct range_data	fv_cfg[MAX_STEP_CHG_ENTRIES];
-};
-#endif
 
 struct step_chg_info {
 	ktime_t			step_last_update_time;
@@ -115,7 +101,7 @@ static struct step_chg_cfg step_chg_config = {
 	 *		//SOC_LOW	SOC_HIGH	FCC
 	 *		{20,		70,		3000000},
 	 *		{70,		90,		2750000},
-	 *		{90,		100,	2500000},
+	 *		{90,		100,		2500000},
 	 *	},
 	 */
 };
@@ -136,12 +122,12 @@ static struct jeita_fcc_cfg jeita_fcc_config = {
 	.hysteresis	= 10, /* 1degC hysteresis */
 	.fcc_cfg	= {
 		/* TEMP_LOW	TEMP_HIGH	FCC */
-		{0,		    100,		600000},
-		{51,		150,		2000000},
-		{151,		430,		3000000},
-		{431,		450,		3000000},
-		{451,		470,		3000000},
-		{471,		600,		600000},
+		{0,		100,		5000000},
+		{51,		150,		5000000},
+		{151,		430,		5000000},
+		{431,		450,		5000000},
+		{451,		470,		5000000},
+		{471,		600,		5000000},
 	},
 };
 #endif
@@ -152,32 +138,11 @@ static struct jeita_fv_cfg jeita_fv_config = {
 	.hysteresis	= 10, /* 1degC hysteresis */
 	.fv_cfg		= {
 		/* TEMP_LOW	TEMP_HIGH	FCC */
-		{0,		    100,		4200000},
-		{101,		450,		4400000},
-		{451,		550,		4200000},
-	},
-};
-
-#ifdef CONFIG_FORCE_FAST_CHARGE
-static struct jeita_fcc_cfg2 jeita_fcc_config2 = {
-	.fcc_cfg	= {
-		/* TEMP_LOW	TEMP_HIGH	FCC */
-		{0,		    100,		5000000},
-		{101,		200,		5000000},
-		{201,		450,		5000000},
-		{451,		550,		5000000},
-	},
-};
-
-static struct jeita_fv_cfg2 jeita_fv_config2 = {
-	.fv_cfg		= {
-		/* TEMP_LOW	TEMP_HIGH	FCC */
-		{0,		    150,		6200000},
+		{0,		150,		6200000},
 		{151,		450,		6200000},
 		{451,		600,		6200000},
 	},
 };
-#endif
 
 static bool is_batt_available(struct step_chg_info *chip)
 {
@@ -338,21 +303,11 @@ static int handle_jeita(struct step_chg_info *chip)
 		return rc;
 	}
 
-#ifdef CONFIG_FORCE_FAST_CHARGE
-	if (force_fast_charge > 0) {
-		rc = get_val(jeita_fcc_config2.fcc_cfg, jeita_fcc_config.hysteresis,
-			chip->jeita_fcc_index,
-			pval.intval,
-			&chip->jeita_fcc_index,
-			&fcc_ua);
-	} else
-#endif
 	rc = get_val(jeita_fcc_config.fcc_cfg, jeita_fcc_config.hysteresis,
 			chip->jeita_fcc_index,
 			pval.intval,
 			&chip->jeita_fcc_index,
 			&fcc_ua);
-
 	if (rc < 0) {
 		/* remove the vote if no step-based fcc is found */
 		if (chip->fcc_votable)
@@ -368,21 +323,11 @@ static int handle_jeita(struct step_chg_info *chip)
 
 	vote(chip->fcc_votable, JEITA_VOTER, true, fcc_ua);
 
-#ifdef CONFIG_FORCE_FAST_CHARGE
-	if (force_fast_charge > 0) {
-		rc = get_val(jeita_fv_config2.fv_cfg, jeita_fv_config.hysteresis,
-			chip->jeita_fv_index,
-			pval.intval,
-			&chip->jeita_fv_index,
-			&fv_uv);
-	} else
-#endif
 	rc = get_val(jeita_fv_config.fv_cfg, jeita_fv_config.hysteresis,
 			chip->jeita_fv_index,
 			pval.intval,
 			&chip->jeita_fv_index,
 			&fv_uv);
-
 	if (rc < 0) {
 		/* remove the vote if no step-based fcc is found */
 		if (chip->fv_votable)
