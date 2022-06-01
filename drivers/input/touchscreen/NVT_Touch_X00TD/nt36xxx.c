@@ -395,7 +395,10 @@ const uint16_t touch_key_array[TOUCH_KEY_NUM] = {
 #define GESTURE_EVENT_Z 		KEY_TP_GESTURE_Z
 /* Huaqin modify  for TT1176710 by liunianliang at 2018/03/30 end */
 /* Huaqin modify gesture keycode by yuexinghan 20171109 start */
-#define GESTURE_EVENT_SWIPE_UP 0x2f6
+#define GESTURE_EVENT_SWIPE_UP KEY_TP_GESTURE_SWIPE_UP
+#define GESTURE_EVENT_SWIPE_DOWN	KEY_TP_GESTURE_SWIPE_DOWN
+#define GESTURE_EVENT_SWIPE_LEFT	KEY_TP_GESTURE_SWIPE_LEFT
+#define GESTURE_EVENT_SWIPE_RIGHT	KEY_TP_GESTURE_SWIPE_RIGHT
 #define GESTURE_EVENT_DOUBLE_CLICK	KEY_WAKEUP
 /* Huaqin modify gesture keycode by yuexinghan 20171109 end */
 
@@ -413,6 +416,9 @@ const uint16_t gesture_key_array[] = {
 	KEY_POWER,
 	KEY_POWER,
 	KEY_POWER,
+	GESTURE_EVENT_SWIPE_DOWN,
+	GESTURE_EVENT_SWIPE_LEFT,
+	GESTURE_EVENT_SWIPE_RIGHT,
 };
 /* Huaqin add by yuexinghan for gesture mode 20171030 end */
 #endif
@@ -1135,15 +1141,15 @@ void nvt_ts_wakeup_gesture_report(uint8_t gesture_id)
 			break;
 		/* case GESTURE_SLIDE_DOWN:
 			NVT_LOG("Gesture : Slide DOWN.\n");
-			keycode = gesture_key_array[10];
+			keycode = gesture_key_array[21];
 			break;
 		case GESTURE_SLIDE_LEFT:
 			NVT_LOG("Gesture : Slide LEFT.\n");
-			keycode = gesture_key_array[11];
+			keycode = gesture_key_array[22];
 			break;
 		case GESTURE_SLIDE_RIGHT:
 			NVT_LOG("Gesture : Slide RIGHT.\n");
-			keycode = gesture_key_array[12];
+			keycode = gesture_key_array[23];
 			break; */
 /* Huaqin add by yuexinghan for gesture mode 20171030 end */
 		default:
