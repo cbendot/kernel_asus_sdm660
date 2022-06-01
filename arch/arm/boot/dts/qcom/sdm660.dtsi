@@ -34,7 +34,6 @@
 
 	chosen {
 		stdout-path = "serial0";
-		bootargs = "kpti=off nosoftlockup mce=ignore_ce";
 	};
 
 	psci {
