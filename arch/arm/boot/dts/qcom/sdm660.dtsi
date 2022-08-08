@@ -49,7 +49,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x0>;
-			clock-frequency = <1843200000>;
+			clock-frequency = <1612800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
@@ -80,7 +80,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x1>;
-			clock-frequency = <1843200000>;
+			clock-frequency = <1612800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
@@ -105,7 +105,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x2>;
-			clock-frequency = <1843200000>;
+			clock-frequency = <1612800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
@@ -130,7 +130,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x3>;
-			clock-frequency = <1843200000>;
+			clock-frequency = <1612800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile0>;
 			sched-energy-costs = <&CPU_COST_0 &CLUSTER_COST_0>;
@@ -155,7 +155,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x100>;
-			clock-frequency = <2208000000>;
+			clock-frequency = <1804800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile1>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
@@ -184,7 +184,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x101>;
-			clock-frequency = <2208000000>;
+			clock-frequency = <1804800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile2>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
@@ -209,7 +209,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x102>;
-			clock-frequency = <2208000000>;
+			clock-frequency = <1804800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile3>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
@@ -234,7 +234,7 @@
 			device_type = "cpu";
 			compatible = "qcom,kryo260";
 			reg = <0x0 0x103>;
-			clock-frequency = <2208000000>;
+			clock-frequency = <1804800000>;
 			enable-method = "psci";
 			qcom,limits-info = <&mitigation_profile4>;
 			sched-energy-costs = <&CPU_COST_1 &CLUSTER_COST_1>;
@@ -1172,6 +1172,7 @@
 			< 465000000 4>,  /* SVS_L1 */
 			< 588000000 5>,  /* NOM    */
 			< 647000000 6>,  /* NOM_L1 */
+			< 700000000 7>,  /* TURBO */
 			< 750000000 7>;  /* TURBO  */
 		#clock-cells = <1>;
 		#reset-cells = <1>;
@@ -1374,14 +1375,13 @@
 			<  1843200000 0x04040060 0x094c004c 0x3 8 >;
 
 		qcom,pwrcl-speedbin3-v0 =
-			<   633600000 0x05040021 0x03200020 0x1 1 >,
-			<   902400000 0x0404002f 0x04260026 0x1 2 >,
-			<  1113600000 0x0404003a 0x052e002e 0x2 3 >,
-			<  1401600000 0x04040049 0x073a003a 0x2 4 >,
-			<  1536000000 0x04040050 0x08400040 0x2 5 >,
-			<  1612800000 0x04040054 0x09430043 0x2 6 >,
-			<  1747200000 0x0404005b 0x09480048 0x2 7 >,
-			<  1843200000 0x04040060 0x094c004c 0x3 8 >;
+			<   300000000 0x0004000f 0x01200020 0x1 1 >,
+			<   633600000 0x05040021 0x03200020 0x1 2 >,
+			<   902400000 0x0404002f 0x04260026 0x1 3 >,
+			<  1113600000 0x0404003a 0x052e002e 0x2 4 >,
+			<  1401600000 0x04040049 0x073a003a 0x2 5 >,
+			<  1536000000 0x04040050 0x08400040 0x2 6 >,
+			<  1612800000 0x04040054 0x09430043 0x2 7 >;
 
 		qcom,pwrcl-speedbin4-v0 =
 			<   300000000 0x0004000f 0x01200020 0x1 1 >,
@@ -1412,15 +1412,11 @@
 			<  2208000000 0x04040073 0x0b5c005c 0x3 7 >;
 
 		qcom,perfcl-speedbin3-v0 =
-			<   633600000 0x05040021 0x03200020 0x1 1 >,
-			<   902400000 0x0404002f 0x04260026 0x1 2 >,
-			<  1113600000 0x0404003a 0x052e002e 0x1 3 >,
-			<  1401600000 0x04040049 0x073a003a 0x2 4 >,
-			<  1747200000 0x0404005b 0x09480048 0x2 5 >,
-			<  1804800000 0x0404005e 0x094b004b 0x2 6 >,
-			<  1958400000 0x04040066 0x0a510051 0x2 7 >,
-			<  2150400000 0x04040070 0x0b590059 0x2 8 >,
-			<  2208000000 0x04040073 0x0b5c005c 0x3 9 >;
+			<   300000000 0x0004000f 0x01200020 0x1 1 >,
+			<  1113600000 0x0404003a 0x052e002e 0x1 2 >,
+			<  1401600000 0x04040049 0x073a003a 0x2 3 >,
+			<  1747200000 0x0404005b 0x09480048 0x2 4 >,
+			<  1804800000 0x0404005e 0x094b004b 0x2 5 >;
 
 		qcom,perfcl-speedbin4-v0 =
 			<   300000000 0x0004000f 0x01200020 0x1 1 >,
@@ -1492,7 +1488,8 @@
 			< 1804800 >,
 			< 1958400 >,
 			< 2150400 >,
-			< 2208000 >;
+			< 2208000 >,
+			< 2457600 >;
 	};
 
 	sdhc_1: sdhci@c0c4000 {
